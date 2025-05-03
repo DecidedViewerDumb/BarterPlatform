@@ -13,14 +13,14 @@
 
                 <select name="category">
                     <option value="">Все категории</option>
-                    {% for key, val in form.category.field.choices %}
+                    {% for key, val in categories.items %}
                         <option value="{{ key }}" {% if key == category %}selected{% endif %}>{{ val }}</option>
                     {% endfor %}
                 </select>
 
                 <select name="condition">
                     <option value="">Все состояния</option>
-                    {% for key, val in form.condition.field.choices %}
+                    {% for key, val in conditions.items %}
                         <option value="{{ key }}" {% if key == condition %}selected{% endif %}>{{ val }}</option>
                     {% endfor %}
                 </select>

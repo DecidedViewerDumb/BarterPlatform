@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (index, register, home_redirect, create_ad, logout_view, edit_ad, delete_ad, my_ads, create_proposal,
                     all_proposals, update_proposal_status)
-from django.contrib.auth import views
 
 urlpatterns = [
     path('', index, name='index'),

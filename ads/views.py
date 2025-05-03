@@ -50,6 +50,9 @@ def index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    categories = dict(Ad.CATEGORY_CHOICES)
+    conditions = dict(Ad.CONDITION_CHOICES)
+
     return render(request, 'forms/index.html', {
         'ads': page_obj,
         'query': query,
@@ -57,7 +60,9 @@ def index(request):
         'condition': condition,
         'sort_by': sort_by,
         'user_ads': user_ads,
-        'offer_ad': offer_ad
+        'offer_ad': offer_ad,
+        'categories': categories,
+        'conditions': conditions
     })
 
 
@@ -93,6 +98,8 @@ def create_ad(request):
             ad.user = request.user
             ad.save()
             return redirect('index')
+        else:
+            print(form.errors)
     else:
         form = AdForm()
     return render(request, 'forms/create_ad.html', {'form': form})
@@ -114,6 +121,8 @@ def edit_ad(request, ad_id):
         if form.is_valid():
             form.save()
             return redirect('my_ads')
+        else:
+            print(form.errors)
     else:
         form = AdForm(instance=ad)
     return render(request, 'forms/edit_ad.html', {'form': form})
