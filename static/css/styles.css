@@ -6,9 +6,13 @@
 
 body, html {
     margin: 0;
-    padding: 60px, 0, 0, 0;
+    padding: 0;
     height: 100%;
     font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f4f4;
 }
 
 .header {
@@ -62,7 +66,7 @@ body, html {
     justify-content: center;
     align-items: center;
     height: 100%;
-}
+
 
 .login-form {
     background: rgba(255, 255, 255, 0.85);
@@ -70,6 +74,8 @@ body, html {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     text-align: center;
+    position: absolute; /* Сделать контейнер абсолютным */
+    top: 40%; /* Центрируем по вертикали */
 }
 
 .login-form input {

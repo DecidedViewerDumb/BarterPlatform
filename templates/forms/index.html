@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block title %}Платформа обмена{% endblock %}
 
 {% block content %}
@@ -38,6 +40,7 @@
                                 {% if sort_by == 'title' %}▲{% elif sort_by == '-title' %}▼{% endif %}
                             </a>
                         </th>
+                        <th>Превью</th>
                         <th>
                             <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'category' %}-category{% else %}category{% endif %}">
                                 Категория
@@ -69,6 +72,13 @@
                     {% for ad in ads %}
                         <tr>
                             <td>{{ ad.title }}</td>
+                            <td>
+                                {% if ad.image_url %}
+                                    <img src="{{ ad.image_url }}" alt="Превью" style="width: 150px; height: 150px;">
+                                {% else %}
+                                    <img src="{% static 'images/pass_img.png' %}" alt="Превью" style="width: 150px; height: 150px;">
+                                {% endif %}
+                            </td>
                             <td>{{ ad.get_category_display }}</td>
                             <td>{{ ad.get_condition_display }}</td>
                             <td>{{ ad.description }}</td>
@@ -76,7 +86,7 @@
                             <td><a href="{% url 'create_proposal' ad.id %}">📩</a></td>
                         </tr>
                     {% empty %}
-                        <tr><td colspan="6">Объявлений нет.</td></tr>
+                        <tr><td colspan="7">Объявлений нет.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
