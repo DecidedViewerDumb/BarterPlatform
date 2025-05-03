@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Все предложения обмена{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2 style="text-align: center;">Все предложения обмена</h2>
+
+        <form method="get" class="filter-form" style="margin-bottom: 20px;">
+            <select name="filter_column">
+                <option value="sender" {% if filter_column == 'sender' %}selected{% endif %}>Отправитель</option>
+                <option value="receiver" {% if filter_column == 'receiver' %}selected{% endif %}>Получатель</option>
+                <option value="comment" {% if filter_column == 'comment' %}selected{% endif %}>Комментарий</option>
+            </select>
+
+            <select name="status">
+                <option value="">Все статусы</option>
+                <option value="PENDING" {% if status == 'PENDING' %}selected{% endif %}>Ожидает</option>
+                <option value="ACCEPTED" {% if status == 'ACCEPTED' %}selected{% endif %}>Принято</option>
+                <option value="REJECTED" {% if status == 'REJECTED' %}selected{% endif %}>Отклонено</option>
+            </select>
+
+            <input type="text" name="filter_value" placeholder="Введите значение для поиска" value="{{ filter_value|default:'' }}">
+
+            <button type="submit">Поиск</button>
+        </form>
+
+        <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'ad_sender__user' %}-ad_sender__user{% else %}ad_sender__user{% endif %}">
+                            Отправитель
+                            {% if sort_by == 'ad_sender__user' %}▲{% elif sort_by == '-ad_sender__user' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'ad_sender__title' %}-ad_sender__title{% else %}ad_sender__title{% endif %}">
+                            Что получаете
+                            {% if sort_by == 'ad_sender__title' %}▲{% elif sort_by == '-ad_sender__title' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'ad_receiver__user' %}-ad_receiver__user{% else %}ad_receiver__user{% endif %}">
+                            Получатель
+                            {% if sort_by == 'ad_receiver__user' %}▲{% elif sort_by == '-ad_receiver__user' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'ad_receiver__title' %}-ad_receiver__title{% else %}ad_receiver__title{% endif %}">
+                            Что отдаете
+                            {% if sort_by == 'ad_receiver__title' %}▲{% elif sort_by == '-ad_receiver__title' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'comment' %}-comment{% else %}comment{% endif %}">
+                            Комментарий
+                            {% if sort_by == 'comment' %}▲{% elif sort_by == '-comment' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'status' %}-status{% else %}status{% endif %}">
+                            Статус
+                            {% if sort_by == 'status' %}▲{% elif sort_by == '-status' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}sort={% if sort_by == 'created_at' %}-created_at{% else %}created_at{% endif %}">
+                            Дата создания
+                            {% if sort_by == 'created_at' %}▲{% elif sort_by == '-created_at' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>Изменить статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proposal in page_obj %}
+                    <tr>
+                        <td>{{ proposal.ad_sender.user }}</td>
+                        <td>{{ proposal.ad_sender.title }}</td>
+                        <td>{{ proposal.ad_receiver.user }}</td>
+                        <td>{{ proposal.ad_receiver.title }}</td>
+                        <td>{{ proposal.comment }}</td>
+                        <td>{{ proposal.get_status_display }}</td>
+                        <td>{{ proposal.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% if proposal.status == 'PENDING' %}
+                                <form method="post" action="{% url 'update_proposal_status' proposal.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" name="status" value="ACCEPTED">Принять</button>
+                                    <button type="submit" name="status" value="REJECTED">Отклонить</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">Предложений нет.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination" style="margin-top: 20px;">
+            {% if page_obj.has_previous %}
+                <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ page_obj.previous_page_number }}">← Назад</a>
+            {% endif %}
+
+            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?{% if sender_name %}sender_name={{ sender_name }}&{% endif %}{% if receiver_name %}receiver_name={{ receiver_name }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд →</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

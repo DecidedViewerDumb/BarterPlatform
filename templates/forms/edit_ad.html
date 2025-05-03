@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать объявление{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2>Редактирование объявления</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="title" placeholder="Заголовок" value="{{ form.title.value|default:'' }}" required>
+            <input type="url" name="image_url" placeholder="Ссылка на изображение" value="{{ form.image_url.value|default:'' }}">
+            <input type="text" name="description" placeholder="Описание" value="{{ form.description.value|default:'' }}" required>
+
+            <a href="{% url 'my_ads' %}" style="display: inline-block; margin-bottom: 20px;">← Отмена</a>
+            <label for="id_category">Категория:</label>
+            {{ form.category }}
+
+            <label for="id_condition">Состояние:</label>
+            {{ form.condition }}
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}

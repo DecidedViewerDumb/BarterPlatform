@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Мои объявления{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2 style="text-align: center;">Мои объявления</h2>
+
+        <a href="{% url 'index' %}" style="display: inline-block; margin-bottom: 20px;">← Назад на главную</a>
+
+        <!-- Таблица с собственными объявлениями -->
+        <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'title' %}-title{% else %}title{% endif %}">
+                            Заголовок
+                            {% if sort_by == 'title' %}▲{% elif sort_by == '-title' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'category' %}-category{% else %}category{% endif %}">
+                            Категория
+                            {% if sort_by == 'category' %}▲{% elif sort_by == '-category' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'condition' %}-condition{% else %}condition{% endif %}">
+                            Состояние
+                            {% if sort_by == 'condition' %}▲{% elif sort_by == '-condition' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'description' %}-description{% else %}description{% endif %}">
+                            Описание
+                            {% if sort_by == 'description' %}▲{% elif sort_by == '-description' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'created_at' %}-created_at{% else %}created_at{% endif %}">
+                            Дата создания
+                            {% if sort_by == 'created_at' %}▲{% elif sort_by == '-created_at' %}▼{% endif %}
+                        </a>
+                    </th>
+                    <th>Редактировать</th>
+                    <th>Удалить</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in user_ads %}
+                    <tr>
+                        <td>{{ ad.title }}</td>
+                        <td>{{ ad.get_category_display }}</td>
+                        <td>{{ ad.get_condition_display }}</td>
+                        <td>{{ ad.description }}</td>
+                        <td>{{ ad.created_at|date:"d.m.Y H:i" }}</td>
+                        <td><a href="{% url 'edit_ad' ad.id %}">✏️</a></td>
+                        <td><a href="{% url 'delete_ad' ad.id %}" onclick="return confirm('Удалить это объявление?');">❌</a></td>
+                        <td>
+                            {% with proposals=ad.received_proposals.all %}
+                                {% if proposals %}
+                                    <details>
+                                        <summary>{{ proposals|length }} откликов</summary>
+                                        <ul style="list-style: none;">
+                                            {% for p in proposals %}
+                                                <li style="list-style: none;">{{ p.ad_sender.title }} — {{ p.get_status_display }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </details>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7">У вас пока нет объявлений.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

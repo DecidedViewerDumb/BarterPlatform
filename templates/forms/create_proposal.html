@@ -4,12 +4,13 @@
 
 {% block content %}
     <div class="login-form">
-        <h2>Создание предложения обмена</h2>
+        <a href="{% url 'index' %}" style="display: inline-block; margin-bottom: 20px;">← Назад на главную</a>
+        <h2>Предложение обмена для: "{{ ad_receiver.title }}"</h2>
         <br><br>
         <form method="post">
             {% csrf_token %}
 
-            <label for="id_ad_sender">Ваше объявление:</label>
+            <label for="ad_sender">Выберите своё объявление:</label>
             <select name="ad_sender" required>
                 {% for ad in user_ads %}
                     <option value="{{ ad.id }}">{{ ad.title }}</option>
@@ -18,16 +19,7 @@
 
             <br><br>
 
-            <label for="id_ad_receiver">Объявление получателя:</label>
-            <select name="ad_receiver" required>
-                {% for ad in other_ads %}
-                    <option value="{{ ad.id }}">{{ ad.title }} ({{ ad.user.username }})</option>
-                {% endfor %}
-            </select>
-
-            <br><br>
-
-            <label for="id_comment">Комментарий:</label>
+            <label for="comment">Комментарий:</label>
             <input type="text" name="comment" placeholder="Комментарий к предложению..." required>
 <!--            <textarea name="comment" rows="4" placeholder="Комментарий к предложению..." required></textarea>-->
 

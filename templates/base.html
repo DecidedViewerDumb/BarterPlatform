@@ -8,6 +8,25 @@
 </head>
 <body>
     <div class="background"></div>
+
+    {% if user.is_authenticated %}
+        <header class="header">
+            <nav class="header-container">
+                <a href="{% url 'index' %}" class="logo">Главная</a>
+                <a href="{% url 'create_ad' %}" class="logo">Создание предложения</a>
+                <a href="{% url 'my_ads' %}" class="logo">Мои предложения</a>
+                <a href="{% url 'all_proposals' %}" class="logo">Все предложения</a>
+
+                <form method="post" class="cta" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    {{ user.get_username }} -
+                    <button type="submit" style="background: none; border: none; color: #4285f4; cursor: pointer;">Выход</button>
+                </form>
+
+            </nav>
+        </header>
+    {% endif %}
+
     <div class="content">
         {% block content %}
         {% endblock %}

@@ -1,16 +1,128 @@
 {% extends "base.html" %}
 
-{% block title %}Вход{% endblock %}
+{% block title %}Платформа обмена{% endblock %}
 
 {% block content %}
-<div class="login-form">
-    <form method="post">
-        {% csrf_token %}
-        <h2>Вход</h2>
-        <input type="text" name="username" placeholder="Логин" required>
-        <input type="password" name="password" placeholder="Пароль" required>
-        <button type="submit">Войти</button>
-        <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
-    </form>
-</div>
+    <div class="login-form">
+        {% if user.is_authenticated %}
+            <h2 style="text-align: center;">Добро пожаловать на платформу обмена!</h2>
+
+            <!-- Поисковая форма -->
+            <form method="get" class="filter-form" style="margin-bottom: 20px;">
+                <input type="text" name="q" placeholder="Поиск..." value="{{ query|default:'' }}">
+
+                <select name="category">
+                    <option value="">Все категории</option>
+                    {% for key, val in form.category.field.choices %}
+                        <option value="{{ key }}" {% if key == category %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="condition">
+                    <option value="">Все состояния</option>
+                    {% for key, val in form.condition.field.choices %}
+                        <option value="{{ key }}" {% if key == condition %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Поиск</button>
+            </form>
+
+            <!-- Объявления других -->
+            <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'title' %}-title{% else %}title{% endif %}">
+                                Заголовок
+                                {% if sort_by == 'title' %}▲{% elif sort_by == '-title' %}▼{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'category' %}-category{% else %}category{% endif %}">
+                                Категория
+                                {% if sort_by == 'category' %}▲{% elif sort_by == '-category' %}▼{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'condition' %}-condition{% else %}condition{% endif %}">
+                                Состояние
+                                {% if sort_by == 'condition' %}▲{% elif sort_by == '-condition' %}▼{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'description' %}-description{% else %}description{% endif %}">
+                                Описание
+                                {% if sort_by == 'description' %}▲{% elif sort_by == '-description' %}▼{% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}sort={% if sort_by == 'created_at' %}-created_at{% else %}created_at{% endif %}">
+                                Дата создания
+                                {% if sort_by == 'created_at' %}▲{% elif sort_by == '-created_at' %}▼{% endif %}
+                            </a>
+                        </th>
+                        <th>Отозваться</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ad in ads %}
+                        <tr>
+                            <td>{{ ad.title }}</td>
+                            <td>{{ ad.get_category_display }}</td>
+                            <td>{{ ad.get_condition_display }}</td>
+                            <td>{{ ad.description }}</td>
+                            <td>{{ ad.created_at|date:"d.m.Y H:i" }}</td>
+                            <td><a href="{% url 'create_proposal' ad.id %}">📩</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6">Объявлений нет.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if offer_ad %}
+                <div style="margin-top: 30px;">
+                    <h3>Создание предложения обмена</h3>
+                    <form method="post" action="{% url 'create_exchange' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="ad_receiver_id" value="{{ offer_ad.id }}">
+                        <br>
+                        <label>Выберите своё объявление:</label>
+                        <select name="ad_sender_id" required>
+                            {% for ad in user_ads %}
+                                <option value="{{ ad.id }}">{{ ad.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <input type="text" name="comment" placeholder="Комментарий к предложению" required>
+<!--                        <textarea name="comment" placeholder="Комментарий к предложению" required></textarea>-->
+                        <br>
+                        <button type="submit">Отправить предложение</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="pagination" style="margin-top: 20px;">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}page={{ page_obj.previous_page_number }}">← Назад</a>
+                {% endif %}
+
+                <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд →</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <form method="post">
+                {% csrf_token %}
+                <h2>Вход</h2>
+                <input type="text" name="username" placeholder="Логин" required>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+                <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}

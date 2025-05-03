@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать объявление{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2>Создание объявления</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="text" name="title" placeholder="Заголовок" value="{{ form.title.value|default:'' }}" required>
+            <input type="url" name="image_url" placeholder="Ссылка на изображение" value="{{ form.image_url.value|default:'' }}">
+            <input type="text" name="description" placeholder="Описание" value="{{ form.description.value|default:'' }}" required>
+
+            <label for="id_category">Категория:</label>
+            {{ form.category }}
+
+            <label for="id_condition">Состояние:</label>
+            {{ form.condition }}
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+{% endblock %}
