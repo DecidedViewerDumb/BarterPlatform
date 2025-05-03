@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать предложение обмена{% endblock %}
+
+{% block content %}
+    <div class="login-form">
+        <h2>Создание предложения обмена</h2>
+        <br><br>
+        <form method="post">
+            {% csrf_token %}
+
+            <label for="id_ad_sender">Ваше объявление:</label>
+            <select name="ad_sender" required>
+                {% for ad in user_ads %}
+                    <option value="{{ ad.id }}">{{ ad.title }}</option>
+                {% endfor %}
+            </select>
+
+            <br><br>
+
+            <label for="id_ad_receiver">Объявление получателя:</label>
+            <select name="ad_receiver" required>
+                {% for ad in other_ads %}
+                    <option value="{{ ad.id }}">{{ ad.title }} ({{ ad.user.username }})</option>
+                {% endfor %}
+            </select>
+
+            <br><br>
+
+            <label for="id_comment">Комментарий:</label>
+            <input type="text" name="comment" placeholder="Комментарий к предложению..." required>
+<!--            <textarea name="comment" rows="4" placeholder="Комментарий к предложению..." required></textarea>-->
+
+            <br><br>
+
+            <button type="submit">Отправить предложение</button>
+        </form>
+    </div>
+{% endblock %}
