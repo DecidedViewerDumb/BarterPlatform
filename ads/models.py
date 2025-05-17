@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -41,3 +42,14 @@ class ExchangeProposal(models.Model):
 
     def __str__(self):
         return f"Предложение #{self.id}"
+
+    def clean(self):
+        errors = {}
+        if self.ad_sender.user == self.ad_receiver.user:
+            errors['ad_sender'] = "Нельзя предложить обмен самому себе."
+
+        if self.ad_sender == self.ad_receiver:
+            errors['ad_receiver'] = "Выберите другое объявление для обмена."
+
+        if errors:
+            raise ValidationError(errors)

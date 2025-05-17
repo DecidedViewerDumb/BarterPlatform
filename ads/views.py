@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -35,8 +34,8 @@ def index(request):
         except Ad.DoesNotExist:
             offer_ad = None
 
-    ads = Ad.objects.exclude(user=request.user)
-    user_ads = Ad.objects.filter(user=request.user)
+    ads = Ad.objects.exclude(user=request.user).select_related('user')
+    user_ads = Ad.objects.filter(user=request.user).select_related('user')
 
     if query:
         ads = ads.filter(Q(title__icontains=query) | Q(description__icontains=query))
@@ -69,7 +68,7 @@ def index(request):
 @login_required
 def my_ads(request):
     sort_by = request.GET.get('sort', '-created_at')
-    user_ads = Ad.objects.filter(user=request.user).order_by(sort_by)
+    user_ads = Ad.objects.filter(user=request.user).select_related('user').order_by(sort_by)
     return render(request, 'forms/my_ads.html', {'user_ads': user_ads, 'sort_by': sort_by})
 
 
@@ -143,7 +142,7 @@ def delete_ad(request, ad_id):
 @login_required
 def create_proposal(request, ad_id):
     ad_receiver = get_object_or_404(Ad, id=ad_id)
-    user_ads = Ad.objects.filter(user=request.user)
+    user_ads = Ad.objects.filter(user=request.user).select_related('user')
     if request.method == 'POST':
         ad_sender_id = request.POST.get('ad_sender')
         comment = request.POST.get('comment')
@@ -169,7 +168,10 @@ def all_proposals(request):
     status = request.GET.get('status', '')
     sort_by = request.GET.get('sort', '-created_at')
 
-    proposals = ExchangeProposal.objects.all()
+    proposals = ExchangeProposal.objects.select_related(
+        'ad_sender__user',
+        'ad_receiver__user'
+    )
 
     if request.user.is_authenticated:
         proposals = proposals.filter(ad_receiver__user=request.user)
